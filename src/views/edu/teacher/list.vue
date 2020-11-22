@@ -1,8 +1,42 @@
 <template>
   <div class="app-container">
     讲师列表
+    <!--查询表单-->
+    <el-form :inline="true" class="demo-form-inline">
+      <el-form-item>
+        <el-input v-model="searchObj.name" placeholder="讲师名"/>
+      </el-form-item>
+
+      <el-form-item>
+        <el-select v-model="searchObj.level" clearable placeholder="讲师头衔">
+          <el-option :value="1" label="高级讲师"/>
+          <el-option :value="2" label="首席讲师"/>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="添加时间">
+        <el-date-picker
+          v-model="searchObj.begin"
+          type="datetime"
+          placeholder="选择开始时间"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          default-time="00:00:00"
+        />
+      </el-form-item>
+      <el-form-item>
+        <el-date-picker
+          v-model="searchObj.end"
+          type="datetime"
+          placeholder="选择截止时间"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          default-time="00:00:00"
+        />
+      </el-form-item>
+
+      <el-button type="primary" icon="el-icon-search" @click="getList()">查询</el-button>
+      <el-button type="default" @click="resetData()">清空</el-button>
+    </el-form>
     <el-table
-      v-loading="loading"
       :data="list"
       element-loading-text="数据加载中"
       border
@@ -43,7 +77,7 @@
     </el-table>
     <el-pagination
       @size-change="handleSizeChange"
-      @current-change="getList"
+      @current-change="handleCurrentChange"
       :current-page="current"
       :page-sizes="[5, 10, 20, 50]"
       :page-size="size"
@@ -58,10 +92,11 @@
   import teacher from '@/api/edu/teacher'
 
   export default {
+    name: 'list',
     data() {
       return {
         current: 1,
-        size: 20,
+        size: 10,
         total: 0,
         searchObj: {},
         list: null
@@ -73,9 +108,15 @@
     methods: {
       handleSizeChange(size = 20) {
         this.size = size
+        this.getList()
+      },
+      handleCurrentChange(current = 1) {
+        this.current = current
+        this.getList()
+      },
+      getList() {
         teacher.getPageList(this.current, this.size, this.searchObj)
           .then(response => {
-            console.log(response)
             this.list = response.data.records
             this.total = response.data.total
           })
@@ -83,20 +124,29 @@
             console.log(error)
           })
       },
-      getList(current = 1) {
-        this.current = current
-        teacher.getPageList(this.current, this.size, this.searchObj)
-          .then(response => {
-            console.log(response)
-            this.list = response.data.records
-            this.total = response.data.total
-          })
-          .catch(error => {
-            console.log(error)
-          })
+      resetData() {
+        this.searchObj = {}
+        this.getList()
+      },
+      removeDataById(id) {
+        this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          teacher.deleteById(id)
+            .then(response => {
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+              this.getList()
+            }).catch()
+        }).catch(error => {
+          console.log(error)
+        })
       }
-    },
-    loading: true
+    }
   }
 </script>
 

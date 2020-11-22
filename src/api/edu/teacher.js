@@ -10,5 +10,31 @@ export default {
       method: 'get',
       params: searchObj
     })
+  },
+  deleteById(id) {
+    return request({
+      url: `${api_name}/${id}`,
+      method: 'delete'
+    })
+  },
+  addTeacher(teacher) {
+    return request({
+      url: `${api_name}`,
+      method: 'post',
+      data:teacher
+    })
+  },
+  updateTeacher(teacher) {
+    return request({
+      url: `${api_name}`,
+      method: 'put',
+      data:teacher
+    })
+  },
+  getTeacherInfo(id){
+    return request({
+      url: `${api_name}/${id}`,
+      method: 'get',
+    })
   }
 }
