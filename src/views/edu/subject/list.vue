@@ -48,7 +48,7 @@
       },
       filterNode(value, data) {
         if (!value) return true
-        return data.title.indexOf(value) !== -1
+        return data.title.toLowerCase().indexOf(value.toLowerCase()) !== -1
       }
     }
   }

@@ -21,20 +21,26 @@ export default {
     return request({
       url: `${api_name}`,
       method: 'post',
-      data:teacher
+      data: teacher
     })
   },
   updateTeacher(teacher) {
     return request({
       url: `${api_name}`,
       method: 'put',
-      data:teacher
+      data: teacher
     })
   },
-  getTeacherInfo(id){
+  getTeacherInfo(id) {
     return request({
       url: `${api_name}/${id}`,
       method: 'get',
+    })
+  },
+  getList() {
+    return request({
+      url: `${api_name}/findAll`,
+      method: 'get'
     })
   }
 }
