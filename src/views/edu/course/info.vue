@@ -60,7 +60,19 @@
         <tinymce :height="300" v-model="courseInfo.description"/>
       </el-form-item>
 
-      <!-- 课程封面 TODO -->
+      <!-- 课程封面-->
+      <el-form-item label="课程封面">
+
+        <el-upload
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+          :action="BASE_API+'/eduoss/file'"
+          class="avatar-uploader">
+          <img :src="courseInfo.cover" width="800" height="400">
+        </el-upload>
+
+      </el-form-item>
 
       <el-form-item label="课程价格">
         <el-input-number :min="0" v-model="courseInfo.price" controls-position="right" placeholder="免费课程请设置为0元"/>
@@ -83,19 +95,21 @@ import Tinymce from '@/components/Tinymce'
 const defaultForm = {
   title: '',
   subjectId: '',
+  subjectParentId: '',
   teacherId: '',
   lessonNum: 0,
   description: '',
-  cover: '',
+  cover: 'https://image-twy2018.oss-cn-hangzhou.aliyuncs.com/note/1.jpg',
   price: 0
 }
 
 export default {
-  components: { Tinymce },
+  components: {Tinymce},
   name: "info",
   data() {
     return {
       courseInfo: defaultForm,
+      BASE_API: process.env.VUE_APP_BASE_API, // 接口API地址
       subjectNestedList: [],//一级分类列表
       subSubjectList: [],//二级分类列表
       teacherList: [], // 讲师列表
@@ -114,6 +128,7 @@ export default {
     init() {
       if (this.$route.params && this.$route.params.id) {
         const id = this.$route.params.id
+        this.getCourseInfoById(id)
       } else {
         this.courseInfo = {...defaultForm}
       }
@@ -125,7 +140,7 @@ export default {
       if (!this.courseInfo.id) {
         this.saveData()
       } else {
-        this.updateData()
+        this.updateData(this.courseInfo.id)
       }
     },
     saveData() {
@@ -139,12 +154,31 @@ export default {
         this.$router.push({path: '/edu/course/chapter/' + response.data})
       })
     },
-    updateData() {
-      this.$router.push({path: '/edu/course/chapter/1'})
+    updateData(id) {
+      this.saveBtnDisabled = true
+      course.updateCourseInfoById(this.courseInfo).then(response => {
+        this.$message({
+          type: 'success',
+          message: '修改成功!'
+        })
+        return response// 将响应结果传递给then
+      }).then(response => {
+        this.$router.push({ path: '/edu/course/chapter/' + id })
+      }).catch((response) => {
+        this.$message({
+          type: 'error',
+          message: '保存失败'
+        })
+      })
     },
     initSubjectList() {
       subject.getSubjectTreeList().then(response => {
         this.subjectNestedList = response.data
+        for (let i = 0; i < this.subjectNestedList.length; i++) {
+          if (this.subjectNestedList[i].id === this.courseInfo.subjectParentId) {
+            this.subSubjectList = this.subjectNestedList[i].children
+          }
+        }
       })
     },
     subjectLevelOneChanged(value) {
@@ -160,6 +194,32 @@ export default {
         this.teacherList = response.data
       })
     },
+    handleAvatarSuccess(res, file) {
+      console.log(res)// 上传响应
+      console.log(URL.createObjectURL(file.raw))// base64编码
+      this.courseInfo.cover = res.data
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
+    },
+    getCourseInfoById(id) {
+      course.getCourseInfoById(id).then(response => {
+        this.courseInfo = response.data
+      }).catch((response) => {
+        this.$message({
+          type: 'error',
+          message: response.message
+        })
+      })
+    }
   }
 }
 </script>
