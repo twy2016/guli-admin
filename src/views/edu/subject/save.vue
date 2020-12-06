@@ -5,7 +5,7 @@
         <el-tag type="info">excel模版说明</el-tag>
         <el-tag>
           <i class="el-icon-download"/>
-          <a :href="'/static/01.xlsx'">点击下载模版</a>
+          <a :href="`<%= BASE_URL %>/01.xls`" target="_blank" download="01.xls">点击下载模版</a>
         </el-tag>
 
       </el-form-item>
