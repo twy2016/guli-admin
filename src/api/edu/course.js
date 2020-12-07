@@ -22,5 +22,30 @@ export default {
       url: `${api_name}/${id}`,
       method: 'get'
     })
+  },
+  getCoursePublishInfoById(id) {
+    return request({
+      url: `${api_name}/publish/${id}`,
+      method: 'get'
+    })
+  },
+  publishCourse(id) {
+    return request({
+      url: `${api_name}/publish/${id}`,
+      method: 'put'
+    })
+  },
+  getPageList(current, size, searchObj) {
+    return request({
+      url: `${api_name}/page?current=${current}&size=${size}`,
+      method: 'get',
+      params: searchObj
+    })
+  },
+  removeById(id) {
+    return request({
+      url: `${api_name}/${id}`,
+      method: 'delete'
+    })
   }
 }
