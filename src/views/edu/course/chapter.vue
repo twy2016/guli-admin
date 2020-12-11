@@ -26,7 +26,7 @@
             </span>
         </p>
 
-        <!-- 视频 -->
+        <!-- 课时 -->
         <ul class="chanpterList videoList">
           <li
             v-for="video in chapter.children"
@@ -282,13 +282,15 @@ export default {
       this.video.title = ''// 重置章节标题
       this.video.sort = 0// 重置章节标题
       this.video.videoSourceId = ''// 重置视频资源id
+      this.video.videoOriginalName = ''// 重置视频资源id
       this.saveVideoBtnDisabled = false
     },
     editVideo(videoId) {
       this.dialogVideoFormVisible = true
+      this.fileList = []
       video.getVideoInfoById(videoId).then(response => {
         this.video = response.data
-        if(video.videoSourceId){
+        if(this.video.videoSourceId){
           this.fileList = [{'name': this.video.videoOriginalName}]
         }
       })
